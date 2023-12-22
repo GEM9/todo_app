@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem's To-Do List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #343a40;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .priority-high {
+            background-color: #ff7675;
+            color: #fff;
+        }
+
+        .priority-medium {
+            background-color: #fdcb6e;
+            color: #000;
+        }
+
+        .priority-low {
+            background-color: #00b894;
+            color: #fff;
+        }
+
+        .done-button,
+        .delete-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .done-button {
+            right: 110px; /* Adjusted right distance for spacing */
+            background-color: #00b894;
+            color: #fff;
+        }
+
+        .delete-button {
+            right: 10px;
+            background-color: #d63031;
+            color: #fff;
+        }
+
+        #progress-bar {
+            height: 10px;
+            background-color: #ddd;
+            margin-top: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background-color: #2ecc71;
+            transition: width 0.3s ease-in-out;
+            width: 0;
+            max-width: 90%; /* Stop at 90% */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <ul>
+            {% for task in tasks %}
+                <li class="priority-{{ task['priority|lower'] }}">
+                    {{ task['task'] }} - Priority: {{ task['priority'] }}
+                    <button class="btn done-button" onclick="markAsDone({{ loop.index-1 }})">Done</button>
+                    <a href="{{ url_for('delete', task_id=loop.index-1) }}" class="btn delete-button">Delete</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <form action="{{ url_for('add') }}" method="post" id="add-task-form">
+            <div class="form-group">
+                <label for="task">New Task:</label>
+                <input type="text" class="form-control" id="task" name="task" required>
+            </div>
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select class="form-control" id="priority" name="priority" required>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                    <option value="Custom">Custom</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addTask()">Add</button>
+        </form>
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            updateProgressBar();
+        });
+
+        function markAsDone(index) {
+            // Add logic to mark task as done (you can use Ajax to update the server)
+            // For simplicity, let's remove the task for now
+            document.querySelectorAll('.done-button')[index].innerText = 'Completed';
+            document.querySelectorAll('.done-button')[index].classList.remove('btn-done');
+            document.querySelectorAll('.done-button')[index].classList.add('btn-secondary');
+
+            // Update progress bar
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const doneTasks = document.querySelectorAll('.btn-secondary').length;
+            const totalTasks = document.querySelectorAll('.done-button').length;
+            const progressPercentage = (doneTasks / totalTasks) * 100;
+
+            document.getElementById('progress-fill').style.width = Math.min(progressPercentage, 90) + '%';
+        }
+
+        function addTask() {
+            // You can add your logic to handle the form submission here
+            // For simplicity, let's just submit the form
+            document.getElementById('add-task-form').submit();
+        }
+    </script>
+</body>
+</html>
